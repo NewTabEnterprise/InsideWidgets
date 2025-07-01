@@ -96,8 +96,8 @@ export default async function handler(req, res) {
     res.send(screenshot);
 
   } catch (error) {
-    console.error('Error generating image:', error);
-    res.status(500).json({ error: 'Image generation failed.' });
+    console.error('Puppeteer error:', error.message, error.stack);
+    res.status(500).json({ error: error.message });
   } finally {
     if (browser !== null) {
       await browser.close();
