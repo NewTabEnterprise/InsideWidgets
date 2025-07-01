@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .demo-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .demo-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .url-input {
+            width: 100%;
+            max-width: 500px;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+        
+        .generate-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .api-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        
+        .api-section h3 {
+            color: #333;
+            margin-top: 0;
+        }
+        
+        .api-example {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        
+        .result-section {
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        #qrResult {
+            max-width: 100%;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .template-canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 QR Code Generator</h1>
+            <p>Generate beautiful QR codes with custom templates</p>
+        </div>
+        
+        <div class="content">
+            <div class="demo-section">
+                <h2>Try it out!</h2>
+                <input type="url" id="urlInput" class="url-input" placeholder="Enter URL (e.g., https://www.google.com)" value="https://www.google.com">
+                <br>
+                <button onclick="generateQR()" class="generate-btn">Generate QR Code</button>
+                <div class="result-section">
+                    <img id="qrResult" style="display: none;" alt="Generated QR Code">
+                </div>
+            </div>
+            
+            <div class="api-section">
+                <h3>📡 API Usage</h3>
+                <p>Use this endpoint to generate QR codes programmatically:</p>
+                <div class="api-example">
+                    <span id="apiUrl">http://localhost/generate-qr?url=https://www.google.com</span>
+                </div>
+                <p><strong>Parameters:</strong></p>
+                <ul>
+                    <li><code>url</code> - The URL to encode in the QR code (required)</li>
+                    <li><code>size</code> - QR code size in pixels (optional, default: 300)</li>
+                </ul>
+                <p><strong>Example:</strong></p>
+                <div class="api-example">
+                    <span id="fullApiExample">http://localhost/generate-qr?url=https://www.example.com&size=500</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <canvas id="templateCanvas" class="template-canvas"></canvas>
+
+    <script>
+        // Update API URLs with current domain
+        const currentDomain = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '');
+        document.getElementById('apiUrl').textContent = currentDomain + '/generate-qr?url=https://www.google.com';
+        document.getElementById('fullApiExample').textContent = currentDomain + '/generate-qr?url=https://www.example.com&size=500';
+
+        function getUrlParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        function generateQRCode(url, size = 300) {
+            // Create QR code
+            const qr = new QRious({
+                value: url,
+                size: size,
+                level: 'H'
+            });
+            
+            // Create template canvas
+            const canvas = document.getElementById('templateCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size (larger to accommodate template)
+            const templateWidth = size * 1.6;
+            const templateHeight = size * 1.8;
+            canvas.width = templateWidth;
+            canvas.height = templateHeight;
+            
+            // Create template background
+            const gradient = ctx.createLinearGradient(0, 0, templateWidth, templateHeight);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, templateWidth, templateHeight);
+            
+            // Add decorative elements
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+            for (let i = 0; i < 20; i++) {
+                const x = Math.random() * templateWidth;
+                const y = Math.random() * templateHeight;
+                const radius = Math.random() * 30 + 10;
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Add header section
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            ctx.fillRect(20, 20, templateWidth - 40, 80);
+            
+            // Add title
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 28px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Scan QR Code', templateWidth / 2, 55);
+            
+            ctx.font = '16px Arial';
+            ctx.fillStyle = '#666';
+            ctx.fillText('Point your camera at the code below', templateWidth / 2, 80);
+            
+            // Add white background for QR code
+            const qrPadding = 30;
+            const qrX = (templateWidth - size) / 2;
+            const qrY = 120;
+            
+            ctx.fillStyle = 'white';
+            ctx.fillRect(qrX - qrPadding, qrY - qrPadding, size + qrPadding * 2, size + qrPadding * 2);
+            
+            // Add shadow
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 5;
+            ctx.fillRect(qrX - qrPadding, qrY - qrPadding, size + qrPadding * 2, size + qrPadding * 2);
+            
+            // Reset shadow
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            
+            // Draw QR code
+            const qrImage = new Image();
+            qrImage.onload = function() {
+                ctx.drawImage(qrImage, qrX, qrY, size, size);
+                
+                // Add footer text
+                ctx.fillStyle = 'white';
+                ctx.font = '14px Arial';
+                ctx.textAlign = 'center';
+                const footerY = qrY + size + qrPadding + 40;
+                ctx.fillText('Powered by QR Generator', templateWidth / 2, footerY);
+                
+                ctx.font = '12px Arial';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.fillText(url, templateWidth / 2, footerY + 25);
+                
+                // Return the canvas as image data
+                return canvas.toDataURL('image/png');
+            };
+            qrImage.src = qr.toDataURL();
+            
+            return new Promise((resolve) => {
+                qrImage.onload = function() {
+                    ctx.drawImage(qrImage, qrX, qrY, size, size);
+                    
+                    // Add footer text
+                    ctx.fillStyle = 'white';
+                    ctx.font = '14px Arial';
+                    ctx.textAlign = 'center';
+                    const footerY = qrY + size + qrPadding + 40;
+                    ctx.fillText('Powered by QR Generator', templateWidth / 2, footerY);
+                    
+                    ctx.font = '12px Arial';
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    const truncatedUrl = url.length > 50 ? url.substring(0, 47) + '...' : url;
+                    ctx.fillText(truncatedUrl, templateWidth / 2, footerY + 25);
+                    
+                    resolve(canvas.toDataURL('image/png'));
+                };
+            });
+        }
+
+        async function generateQR() {
+            const url = document.getElementById('urlInput').value;
+            if (!url) {
+                alert('Please enter a URL');
+                return;
+            }
+            
+            try {
+                const imageData = await generateQRCode(url, 300);
+                const resultImg = document.getElementById('qrResult');
+                resultImg.src = imageData;
+                resultImg.style.display = 'block';
+            } catch (error) {
+                console.error('Error generating QR code:', error);
+                alert('Error generating QR code');
+            }
+        }
+
+        // API simulation - handle URL parameters
+        window.addEventListener('load', async function() {
+            const urlParam = getUrlParameter('url');
+            const sizeParam = getUrlParameter('size');
+            
+            if (urlParam) {
+                // API mode - return image directly
+                const size = sizeParam ? parseInt(sizeParam) : 300;
+                try {
+                    const imageData = await generateQRCode(urlParam, size);
+                    
+                    // Create a new image element and display it
+                    document.body.innerHTML = `
+                        <div style="text-align: center; padding: 20px; font-family: Arial;">
+                            <h2>Generated QR Code</h2>
+                            <img src="${imageData}" alt="QR Code for ${urlParam}" style="max-width: 100%; border-radius: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+                            <p style="margin-top: 20px; color: #666;">QR Code for: ${urlParam}</p>
+                            <p><a href="?" style="color: #667eea;">← Back to Generator</a></p>
+                        </div>
+                    `;
+                } catch (error) {
+                    document.body.innerHTML = `
+                        <div style="text-align: center; padding: 20px; font-family: Arial; color: red;">
+                            <h2>Error</h2>
+                            <p>Failed to generate QR code</p>
+                            <p><a href="?" style="color: #667eea;">← Back to Generator</a></p>
+                        </div>
+                    `;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
