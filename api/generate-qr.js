@@ -49,9 +49,10 @@ export default async function handler(req, res) {
         height: templateHeight,
         deviceScaleFactor: 1
       },
-      executablePath,
+      executablePath: chromium.executablePath, // ✅ NO `await` here!
       headless: chromium.headless
     });
+
 
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
