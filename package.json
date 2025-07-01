@@ -2,7 +2,7 @@
   "name": "custom-qr-generator",
   "version": "1.0.0",
   "dependencies": {
-    "canvas": "^2.11.2",
-    "qrcode": "^1.5.3"
+    "puppeteer-core": "^21.0.0",
+    "@sparticuz/chromium": "^116.0.0"
   }
 }
