@@ -72,8 +72,10 @@ export default async function handler(req, res) {
         height: templateHeight,
         deviceScaleFactor: 1,
       },
-      executablePath: await chromium.executablePath,
-      headless: chromium.headless,
+      executablePath: isProduction
+        ? await chromium.executablePath // use chrome-aws-lambda on Vercel
+        : undefined, // use locally installed Chrome if running locally
+      headless: true,
     });
 
     const page = await browser.newPage();
