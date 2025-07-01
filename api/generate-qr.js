@@ -123,15 +123,6 @@ export default async function handler(req, res) {
             <div class="url">${url.length > 50 ? url.substring(0, 47) + '...' : url}</div>
           </div>
         </div>
-
-        <script>
-          const qr = new QRious({
-            element: document.getElementById('qr'),
-            value: '${url.replace(/'/g, "\\'")}',
-            size: ${qrSize},
-            level: 'H'
-          });
-        </script>
       </body>
       </html>
     `;
