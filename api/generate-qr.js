@@ -203,7 +203,7 @@ export default async function handler(req, res) {
       await browser.close();
     }
   }
-} image -->
+} <!-- image -->
         <image x="${(templateWidth - qrSize) / 2}" y="120" width="${qrSize}" height="${qrSize}" 
                href="https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&amp;data=${encodeURIComponent(url)}" />
         
