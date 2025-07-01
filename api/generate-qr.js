@@ -40,7 +40,7 @@ export default async function handler(req, res) {
       </html>
     `;
 
-    const executablePath = await chromium.executablePath;
+    const executablePath = chromium.executablePath;
 
     browser = await puppeteer.launch({
       args: chromium.args,
