@@ -172,8 +172,6 @@ export default async function handler(req, res) {
     res.send(screenshot);
   } catch (error) {
     console.error('Error generating QR code:', error);
-    const fallbackUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(url)}`;
-    res.status(302).setHeader('Location', fallbackUrl).end();
   } finally {
     if (browser !== null) {
       await browser.close();
