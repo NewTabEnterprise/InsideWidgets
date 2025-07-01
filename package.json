@@ -1,7 +1,9 @@
 {
+  "name": "vercel-html-to-image",
+  "version": "1.0.0",
+  "private": true,
   "dependencies": {
-    "chrome-aws-lambda": "^10.1.0",
-    "puppeteer-core": "^10.1.0",
-    "puppeteer": "^10.1.0"
+    "@sparticuz/chromium": "^112.0.0",
+    "puppeteer-core": "^20.7.4"
   }
 }
